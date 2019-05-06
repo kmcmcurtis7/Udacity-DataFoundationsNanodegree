@@ -1,0 +1,61 @@
+/* SQL queries for Project 3 for DFND */
+
+/* Query 1 - query used for first Insight */
+/* Does length of music track relate to the amount sold? */
+SELECT ROUND(SUM(l.UnitPrice)) AS TotalPurchased, ROUND(AVG((t.Milliseconds/1000)/60))AS AvgMinutesOfTrack, g.Name
+FROM InvoiceLine l
+JOIN Track t
+ON t.TrackId = l.TrackId
+JOIN Genre g
+ON g.GenreId = t.GenreId
+GROUP BY g.Name
+ORDER BY TotalPurchased DESC, AvgMinutesOfTrack;
+
+/* Query 2 - query used for second  Insight */
+/* What are the top 10 genres by sales? */
+SELECT ROUND(SUM(l.UnitPrice),2) AS TotalPurchased, g.Name
+FROM InvoiceLine l
+JOIN Track t
+ON t.TrackId = l.TrackId
+JOIN Genre g
+ON g.GenreId = t.GenreId
+GROUP BY g.Name
+ORDER BY TotalPurchased desc
+LIMIT 10;
+
+/* Query 3 - query used for third Insight */
+/* What countries lead the way in buying rock & latin music genres?*/
+SELECT  i.BillingCountry, SUM(l.Quantity) AS Total_Items_Sold,g.Name
+FROM InvoiceLine l
+JOIN Invoice i
+ON i.InvoiceId = l.InvoiceId
+JOIN Track t
+ON t.TrackId = l.TrackId
+JOIN Genre g
+ON g.GenreId = t.GenreId
+WHERE g.Name = 'Rock' OR g.Name = 'Latin'
+GROUP BY i.BillingCountry, g.Name
+ORDER BY Total_Items_Sold DESC,i.BillingCountry
+LIMIT 10;
+
+/* Query 4 - 1st query used for fourth Insight */
+SELECT i.BillingCountry, ROUND(SUM(l.UnitPrice)) TotalPurchased
+FROM Invoice i
+JOIN InvoiceLine l
+ON l.InvoiceId = i.InvoiceId
+WHERE strftime('%Y-%m', InvoiceDate)=
+(SELECT strftime('%Y-%m', MIN(InvoiceDate)) AS min_month
+FROM Invoice)
+GROUP BY i.BillingCountry
+ORDER BY i.BillingCountry;
+
+/*Query 4 - 2nd query for fourth Insight */
+SELECT i.BillingCountry, ROUND(SUM(l.UnitPrice)) TotalPurchased
+FROM Invoice i
+JOIN InvoiceLine l
+ON l.InvoiceId = i.InvoiceId
+WHERE strftime('%Y', InvoiceDate)=
+(SELECT strftime('%Y', MIN(InvoiceDate))
+FROM Invoice) 
+GROUP BY i.BillingCountry
+ORDER BY i.BillingCountry;
